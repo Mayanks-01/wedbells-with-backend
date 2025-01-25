@@ -1,60 +1,46 @@
-// Contact.js
-import React, { useState } from "react";
-import "../CSS/Contact.css"; // Adjusted path for CSS
+import React from "react";
+import { useForm } from "react-hook-form";
 
-const Contact = () => {
-  const [contactData, setContactData] = useState({
-    name: "",
-    email: "",
-    message: ""
-  });
+function Contact() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const handleChange = (e) => {
-    setContactData({ ...contactData, [e.target.name]: e.target.value });
-  };
+  const onSubmit = async (data) => {
+    try {
+      console.log("Form Data:", data);
+      let response = await fetch("http://localhost:3000/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log(contactData);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (
-    <div className="contact-container">
-      <h2>Contact Us</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={contactData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={contactData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Message:</label>
-          <textarea
-            name="message"
-            value={contactData.message}
-            onChange={handleChange}
-          ></textarea>
-        </div>
-        <button type="submit">Send Message</button>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input defaultValue="test" {...register("example")} />
+
+        <input {...register("exampleRequired", { required: true })} />
+
+        {errors.exampleRequired && <span>This field is required</span>}
+
+        <input type="submit" />
       </form>
-    </div>
+    </>
   );
-};
+}
 
 export default Contact;
